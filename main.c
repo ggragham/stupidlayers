@@ -14,12 +14,9 @@
 
 /*
  * motospeed ck62 keybinds
- * - caps lock is esc
  * - esc is `
- * - esc acts as fn key if held down
- * - esc + q is `
- * - esc + shift + q is ~
- * - esc + e is ~
+ * - r_crtl acts as fn key if held down
+ * - wasd acts as arrows if r_ctrl held down
  */
 
 typedef struct {
@@ -30,19 +27,20 @@ typedef struct {
 static int pre_handler(void* data, struct input_event* ev, char* k) {
   ck62_state_t* ck62 = data;
   stupidlayers_t* sl = ck62->sl;
+  // switch (ev->code) {
+  //   case KEY_CAPSLOCK: ev->code = KEY_ESC; break;
+  //   case KEY_ESC: ev->code = KEY_GRAVE; break;
+  // }
+  if (!k[KEY_RIGHTCTRL]) { return 0; }
   switch (ev->code) {
-    case KEY_CAPSLOCK: ev->code = KEY_ESC; break;
+    //case KEY_Q: ev->code = KEY_GRAVE; break;
+    //case KEY_E:
+    //  /* inject tilde */
+    //  ev->code = KEY_LEFTSHIFT;
+    //  stupidlayers_send(sl, ev);
+    //  ev->code = KEY_GRAVE;
+    //  break;
     case KEY_ESC: ev->code = KEY_GRAVE; break;
-  }
-  if (!k[KEY_ESC]) { return 0; }
-  switch (ev->code) {
-    case KEY_Q: ev->code = KEY_GRAVE; break;
-    case KEY_E:
-      /* inject tilde */
-      ev->code = KEY_LEFTSHIFT;
-      stupidlayers_send(sl, ev);
-      ev->code = KEY_GRAVE;
-      break;
     case KEY_1: ev->code = KEY_F1; break;
     case KEY_2: ev->code = KEY_F2; break;
     case KEY_3: ev->code = KEY_F3; break;
@@ -62,20 +60,20 @@ static int pre_handler(void* data, struct input_event* ev, char* k) {
     case KEY_APOSTROPHE: ev->code = KEY_PAGEDOWN; break;
     case KEY_COMMA: ev->code = KEY_DELETE; break;
     case KEY_DOT: ev->code = KEY_END; break;
-    case KEY_SLASH: ev->code = KEY_UP; break;
-    case KEY_RIGHTALT: ev->code = KEY_LEFT; break;
-    case KEY_COMPOSE: ev->code = KEY_DOWN; break;
-    case KEY_RIGHTCTRL: ev->code = KEY_RIGHT; break;
-    case KEY_ESC:
+    case KEY_W: ev->code = KEY_UP; break;
+    case KEY_A: ev->code = KEY_LEFT; break;
+    case KEY_S: ev->code = KEY_DOWN; break;
+    case KEY_D: ev->code = KEY_RIGHT; break;
+    case KEY_RIGHTCTRL:
       if (!ev->value) {
         if (ck62->matched_hotkey) {
           ck62->matched_hotkey = 0;
-          k[KEY_ESC] = 0; /* mark esc as released manually */
+          k[KEY_RIGHTCTRL] = 0; /* mark r_ctrl as released manually */
           return 1;
         }
-        /* releasing esc and no hotkey matched, inject esc we skipped */
+        /* releasing r_ctrl and no hotkey matched, inject r_ctrl we skipped */
         ev->value = 1;
-        stupidlayers_send(sl, ev);
+       stupidlayers_send(sl, ev);
         /* release will be passed through normally */
         ev->value = 0;
       }
@@ -84,15 +82,15 @@ static int pre_handler(void* data, struct input_event* ev, char* k) {
   }
   /*
    * if we get here, a hotkey has matched. I remember this so I can
-   * suppress the esc keystroke later
+   * suppress the r_ctrl keystroke later
    */
   ck62->matched_hotkey = 1;
   return 0;
 }
 
 static int post_handler(void* data, struct input_event* ev, char* k) {
-  /* ignore esc keydown. we will send it ourselves if no hotkeys match */
-  return ev->code == KEY_ESC && ev->value;
+  /* ignore r_ctrl keydown. we will send it ourselves if no hotkeys match */
+  return ev->code == KEY_RIGHTCTRL && ev->value;
 }
 
 #define die(x) { fprintf(stderr, x); exit(1); }
