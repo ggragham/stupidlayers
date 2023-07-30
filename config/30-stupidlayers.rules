@@ -1,0 +1,4 @@
+ACTION=="add", \
+KERNEL=="event[0-9]*", \
+ATTRS{name}=="SONiX USB DEVICE", \
+RUN+="/bin/sh -c 'echo /usr/local/bin/stupidlayers /dev/input/%k | at now'"
