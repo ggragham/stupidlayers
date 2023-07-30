@@ -14,6 +14,8 @@ UDEV_CONFIG_SRC = $(wildcard $(CONF_DIR)*.rules)
 DESTDIR ?= 
 BIN_DEST ?= $(DESTDIR)/usr/local/bin/
 UDEV_CONFIG_DEST ?= $(DESTDIR)/etc/udev/rules.d/
+LICENSE_DEST = $(DESTDIR)/usr/share/licenses/$(EXECUTABLE)
+DOC_DEST = $(DESTDIR)/usr/share/doc/$(EXECUTABLE)
 
 INSTALL = install -m 0755
 INSTALL_CONFIG = install -m 0644
@@ -37,6 +39,12 @@ $(BIN_DIR):
 install: $(BIN_DIR)$(EXECUTABLE) config
 	mkdir -p $(BIN_DEST)
 	$(INSTALL) $(BIN_DIR)$(EXECUTABLE) $(BIN_DEST)$(EXECUTABLE)
+
+	mkdir -p $(LICENSE_DEST)
+	$(INSTALL) UNLICENSE $(LICENSE_DEST)
+
+	mkdir -p $(DOC_DEST)
+	$(INSTALL) README.md $(DOC_DEST)
 
 uninstall:
 	rm -f $(BIN_DEST)$(EXECUTABLE)
